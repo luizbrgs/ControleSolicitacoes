@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Controle BC</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8f9fb;color:#111;font-size:13px}
+.hdr{background:#fff;border-bottom:1px solid #e2e6ed;padding:0 20px;display:flex;align-items:center;gap:12px;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.logo{background:#2563eb;color:#fff;font-weight:700;font-size:12px;padding:4px 9px}
+.hdr-t{font-weight:600;font-size:14px}
+.hdr-s{font-size:11px;color:#6b7280}
+.hdr-r{margin-left:auto;display:flex;gap:8px}
+.layout{display:flex;height:calc(100vh - 52px)}
+.side{width:210px;flex-shrink:0;background:#fff;border-right:1px solid #e2e6ed;padding:12px 0;overflow-y:auto}
+.ns{padding:3px 14px 2px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;margin-top:10px}
+.ni{display:flex;align-items:center;gap:7px;padding:7px 14px;cursor:pointer;font-size:13px;color:#374151;border-left:3px solid transparent;transition:all .12s}
+.ni:hover{background:#f8f9fb}
+.ni.on{background:#eff6ff;color:#2563eb;border-left-color:#2563eb;font-weight:500}
+.ni .nb{margin-left:auto;background:#2563eb;color:#fff;font-size:10px;padding:1px 6px;border-radius:9px}
+.ni .nb.y{background:#d97706}
+.main{flex:1;overflow-y:auto;padding:18px 20px}
+.sc{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.sc .v{font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
+.sc .l{font-size:11px;color:#6b7280}
+.sc.bl .v{color:#2563eb}.sc.gr .v{color:#16a34a}.sc.yw .v{color:#d97706}.sc.gy .v{color:#6b7280}
+.card{background:#fff;border:1px solid #e2e6ed;padding:12px 14px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.panel{background:#fff;border:1px solid #e2e6ed;box-shadow:0 1px 2px rgba(0,0,0,.05);margin-bottom:14px}
+.ph{padding:10px 14px;border-bottom:1px solid #e2e6ed;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.ph .ac{margin-left:auto;display:flex;gap:7px}
+.pb{padding:14px}.pb0{padding:0}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:7px 11px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;background:#f8f9fb;border-bottom:1px solid #e2e6ed;white-space:nowrap}
+.tbl td{padding:8px 11px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#fafbfc}
+.mn{font-family:monospace;font-size:11px}
+.b{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;padding:2px 7px;white-space:nowrap}
+.b.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.b.wn{background:#fffbeb;color:#d97706;border:1px solid #fde68a}
+.b.er{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.b.in{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+.b.gy{background:#f3f4f6;color:#6b7280;border:1px solid #e2e6ed}
+.btn{font-size:12px;font-weight:500;padding:6px 12px;border:1px solid;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;background:#fff}
+.bp{background:#2563eb;color:#fff;border-color:#2563eb}.bp:hover{background:#1d4ed8}
+.bo{color:#374151;border-color:#c8d0dc}.bo:hover{background:#f8f9fb}
+.bg{background:#16a34a;color:#fff;border-color:#16a34a}
+.bsm{padding:3px 9px;font-size:11px}
+.pane{display:none}.pane.on{display:block}
+.sl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.sl::after{content:"";flex:1;height:1px;background:#e2e6ed}
+.al{padding:9px 12px;border-left:3px solid;font-size:12px;margin-bottom:10px}
+.al.wn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.al.ok{background:#f0fdf4;border-color:#16a34a;color:#14532d}
+.al.in{background:#eff6ff;border-color:#2563eb;color:#1e3a8a}
+.ci{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid #f3f4f6}
+.ci input{width:14px;height:14px;cursor:pointer;accent-color:#2563eb}
+.ci label{cursor:pointer;font-size:12px;flex:1}
+.ci.dn label{text-decoration:line-through;color:#9ca3af}
+.sr{display:flex;gap:8px;margin-bottom:12px}
+.sr input{flex:1;padding:6px 10px;border:1px solid #c8d0dc;font-size:13px;outline:none}
+.sr input:focus{border-color:#2563eb}
+.eg{border:1px solid #e2e6ed;margin-bottom:14px;background:#fff}
+.egh{background:#f8f9fb;border-bottom:1px solid #e2e6ed;padding:10px 14px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.egh:hover{background:#eef0f4}
+.egh .astu{font-weight:600;font-size:13px;flex:1}
+.egb{padding:14px}
+.epr{background:#f9fafb;border:1px solid #e2e6ed;padding:12px 14px;font-size:13px;line-height:1.9;position:relative;margin-top:7px}
+.epr .elb{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;margin-bottom:7px}
+.cpb{position:absolute;top:7px;right:7px;font-size:11px;padding:2px 9px;cursor:pointer;background:#fff;border:1px solid #c8d0dc;color:#9ca3af}
+.cpb:hover{background:#eff6ff;color:#2563eb}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vc{border:1px solid #e2e6ed;margin-bottom:10px;padding:12px;background:#fff}
+.dlb{font-size:11px;padding:3px 9px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;cursor:pointer;display:inline-flex;align-items:center;gap:3px;margin:2px}
+.dlb:hover{background:#2563eb;color:#fff}
+.ft{width:100%;border-collapse:collapse;font-size:12px;margin-top:7px}
+.ft th{padding:5px 9px;background:#f1f5f9;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;border-bottom:1px solid #e2e6ed;text-align:left}
+.ft td{padding:6px 9px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
+.ft tr:last-child td{border-bottom:none}
+.hid{display:none!important}
+.fw6{font-weight:600}
+.mt8{margin-top:8px}
+.mt12{margin-top:12px}
+.mu{color:#6b7280}
+.dlflex{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#c8d0dc}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo">BC</div>
+  <div><div class="hdr-t">Controle de Solicitações</div><div class="hdr-s">Kit Manuseio · Cartas de Compra · Romaneios · E-mails</div></div>
+  <div class="hdr-r">
+    <span style="font-size:11px;color:#9ca3af" id="clk"></span>
+    <button class="btn bp bsm" onclick="go('emails')">✉ E-mails</button>
+  </div>
+</div>
+<div class="layout">
+<div class="side">
+  <div class="ns">Visão Geral</div>
+  <div class="ni on" onclick="go('dash')">📊 Dashboard</div>
+  <div class="ni" onclick="go('sol')">📋 Cartas de Compra <span class="nb y">7</span></div>
+  <div class="ni" onclick="go('rom')">📦 Romaneios <span class="nb">3</span></div>
+  <div class="ni" onclick="go('emails')">✉️ E-mails <span class="nb">3</span></div>
+  <div class="ns">Ferramentas</div>
+  <div class="ni" onclick="go('val')">✅ Validação</div>
+  <div class="ni" onclick="go('base')">🔍 Base Fornecedores</div>
+  <div class="ni" onclick="go('rel')">📄 Relatório</div>
+</div>
+<div class="main">
+
+<div class="pane on" id="p-dash">
+  <div class="sc">
+    <div class="card sc bl"><div class="v">7</div><div class="l">Cartas de Compra</div></div>
+    <div class="card sc gy"><div class="v">3</div><div class="l">Romaneios</div></div>
+    <div class="card sc gr"><div class="v">2</div><div class="l">Associadas OK</div></div>
+    <div class="card sc yw"><div class="v">5</div><div class="l">Sem pedido</div></div>
+    <div class="card sc gy"><div class="v">3</div><div class="l">Grupos E-mail</div></div>
+  </div>
+  <div class="al in">ℹ️ Dados lidos diretamente dos PDFs: funcionários, itens e quantidades verificados.</div>
+  <div class="panel">
+    <div class="ph">📋 Cartas de Compra <div class="ac"><button class="btn bo bsm" onclick="go('sol')">Ver todas →</button></div></div>
+    <div class="pb0"><table class="tbl"><thead><tr><th>Carta</th><th>Fornecedor</th><th>Cidade/UF</th><th>Total</th><th>Pedido</th><th>Empresa</th><th>Assunto E-mail</th><th>Status</th></tr></thead><tbody id="tb-dash"></tbody></table></div>
+  </div>
+  <div class="g2">
+    <div class="panel"><div class="ph">✅ Checklist BH/MG</div><div class="pb" id="ck-bh"></div></div>
+    <div class="panel"><div class="ph">✅ Checklist João Monlevade/MG</div><div class="pb" id="ck-jm"></div></div>
+  </div>
+</div>
+
+<div class="pane hid" id="p-sol">
+  <div class="panel">
+    <div class="ph">📋 Cartas de Compra <div class="ac"><button class="btn bg bsm" onclick="expCSV()">↓ CSV</button></div></div>
+    <div class="pb"><div class="sr"><input id="s-sol" placeholder="Buscar carta, fornecedor, pedido..." oninput="rSol()"></div></div>
+    <div class="pb0" style="overflow-x:auto">
+      <table class="tbl"><thead><tr><th>Carta</th><th>Data</th><th>Fornecedor</th><th>Cidade</th><th>UF</th><th>Total</th><th>Comprador</th><th>Pedido</th><th>Empresa</th><th>Docs Kit</th><th>Assunto E-mail</th><th>Comp.</th><th>Status</th></tr></thead>
+      <tbody id="tb-sol"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="pane hid" id="p-rom">
+  <div class="panel">
+    <div class="ph">📦 Pedidos em Romaneio</div>
+    <div class="pb0"><table class="tbl"><thead><tr><th>Pedido</th><th>Encomenda</th><th>Empresa</th><th>Cidade/UF</th><th>Responsável</th><th>Env.</th><th>Total</th><th>Cartas</th><th>Docs Kit</th></tr></thead><tbody id="tb-rom"></tbody></table></div>
+  </div>
+  <div class="panel">
+    <div class="ph">👥 Funcionários — Itens lidos dos PDFs</div>
+    <div class="pb0" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Pedido</th><th>Empresa</th><th>Funcionário</th><th>Matrícula</th><th>Cód</th><th>Descrição Item</th><th>Qtde</th><th>Vl.Unit</th><th>Total</th><th>Período</th></tr></thead><tbody id="tb-func"></tbody></table></div>
+  </div>
+</div>
+
+<div class="pane hid" id="p-emails">
+  <div class="al ok">✓ Assuntos da coluna "E-mail" da planilha BASE_E-MAILS_ASSUNTOS.xlsx</div>
+  <div id="eg-cont"></div>
+</div>
+
+<div class="pane hid" id="p-val">
+  <div class="panel"><div class="ph">✅ Validação por OS</div><div class="pb" id="val-b"></div></div>
+</div>
+
+<div class="pane hid" id="p-base">
+  <div class="panel">
+    <div class="ph">🔍 Base Fornecedores (324 registros)</div>
+    <div class="pb"><div class="sr"><input id="s-base" placeholder="Buscar fornecedor, cidade, assunto..." oninput="rBase()"></div></div>
+    <div class="pb0" style="max-height:500px;overflow-y:auto"><table class="tbl"><thead><tr><th>Fornecedor</th><th>Cidade</th><th>UF</th><th>Assunto E-mail</th><th>Obs</th></tr></thead><tbody id="tb-base"></tbody></table></div>
+  </div>
+</div>
+
+<div class="pane hid" id="p-rel">
+  <div class="panel">
+    <div class="ph">📄 Relatório <div class="ac"><button class="btn bo bsm" onclick="expRel()">↓ TXT</button><button class="btn bg bsm" onclick="expCSV()">↓ CSV</button></div></div>
+    <div class="pb"><pre id="rel-t" style="font-family:monospace;font-size:11px;line-height:1.9;white-space:pre-wrap;color:#374151"></pre></div>
+  </div>
+</div>
+
+</div></div>
+
+<script>
+const B=[["A. CESAR CASTRO","FEIRA DE SANTANA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["AFRECASP - FRETADO","","","FRETADO",""],["ANDORINHA - MS -P (L)","PRESIDENTE PRUDENTE","SP","FUNCIONÁRIO RETIRA",""],["ANDORINHA - P - MS","PRESIDENTE PRUDENTE","SP","FUNCIONÁRIO RETIRA",""],["ARAPARI - TRANSARAPARI","BELEM","PA","KIT DE MANUSEIO E CARTA DE COMPRA - BELEM/PA - OS",""],["ARAUJO TURISMO - FRETAMENTO","-","-","FRETADO",""],["ASCAVER","CONCEIÇÃO DO JACUIPE","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["ASSOC. DOS MOTORISTAS AUTONOMOS DE MARECHAL DEODORO","MARECHAL DEODORO","AL","MIGROU PARA CARTÃO",""],["ASSOC. TRANSP. COMPL. SÃO MIGUEL DOS CAMPOS","SÃO MIGUEL DOS CAMPOS","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["ASSOCIACAO DOS CATRAIEIROS - DO PORTO DE SANTOS","GUARUJA","SP","COLETA E ENVIO PARA SP - SANTOS/SP - OS",""],["ASSOCIACAO DOS CATRAIEIROS - SANTA CRUZ DOS NAVEGANTES","GUARUJA","SP","COLETA E ENVIO PARA SP - SANTOS/SP - OS",""],["ASTAFRAN","CASA NOVA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - PETROLINA/PE - OS",""],["ASTAVIC","belem","PA","KIT DE MANUSEIO E CARTA DE COMPRA - BELEM/PA - OS",""],["ATIBAIA - P","ATIBAIA","SP","COLETA E ENVIO PARA SP - ATIBAIA/SP - OS",""],["ATIOMESP - FRETADO","-","-","FRETADO",""],["ATRACOMP","PENEDO","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["ATUP","UNIÃO DOS PALMARES","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["AUTO VIAÇÃO BRAGANÇA - P","SÃO PAULO","SP","QR CODE",""],["AUTO VIACAO CAMBUI LTDA","SÃO PAULO","SP","FUNCIONÁRIO RETIRA",""],["AUTO VIACAO CAMBUI LTDA - (L)","SÃO PAULO","SP","FUNCIONÁRIO RETIRA",""],["AUTO VIACAO CAMPESTRE","COSMOPOLIS","SP","COLETA E ENVIO PARA SP - COSMOPOLIS/SP - OS",""],["AUTO VIACAO CAMPESTRE - P","COSMÓPOLIS","SP","COLETA E ENVIO PARA SP - COSMÓPOLIS/SP - OS",""],["AUTO VIAÇÃO CAMURUJIPE","Salvador","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS","Mesmo endereço do cidade sol"],["AUTO VIAÇÃO SÃO LUIZ MG","CONGONHAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["AUTO VIAÇÃO SÃO LUIZ MG - (L)","CONGONHAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["BARCA SANTOS GUARUJA","SANTOS","SP","COLETA E ENVIO PARA SP - SANTOS/SP - OS",""],["BENTO TRANSPORTES - RS","porto alegre","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["BOA ESPERANÇA","BELEM","PA","NÃO FAZ",""],["BOA ESPERANÇA - (L)","BELEM","PA","NÃO FAZ",""],["BPA TRANSPORTES LTDA","CORINTO","MG","KIT DE MANUSEIO E CARTA DE COMPRA - CORINTO/MG - OS",""],["BREDA","SÃO PAULO","SP","TERMINAL JABAQUARA",""],["BREDA - (L)","SÃO PAULO","SP","TERMINAL JABAQUARA",""],["BREDA - FILIAL MOGI","MOGI DAS CRUZES","SP","COLETA E ENVIO PARA SP - MOGI DAS CRUZES/SP - OS",""],["BUENO VIAGENS","ARAGUAÍNA","TO","Informar NET que passagens estão disponiveis",""],["CAPITAL TUR TRANSPORTES","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["CATEDRAL TURISMO","BRASILIA","DF","KIT DE MANUSEIO E CARTA DE COMPRA - BRASILIA/DF - OS",""],["CELICO","SÃO J R PRETO","SP","COLETA E ENVIO PARA SP - SÃO JOSÉ DO RIO PRETO/SP - OS",""],["CENTRAL EXPRESSO (ADA TECNOLOGIA LTDA)","LUZIÂNIA","GO","KIT DE MANUSEIO E CARTA DE COMPRA - BRASILIA/DF - OS",""],["CIANORTE - VIAÇÃO REAL","MARINGA","PR","KIT DE MANUSEIO E CARTA DE COMPRA - MARINGA/PR - OS",""],["CIDADE BELA TURISMO (CARMENSE)","CARMO","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - CARMO/RJ - OS",""],["COLEURB","PASSO FUNDO","RS","COLETA E ENVIO - PASSO FUNDO/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["COMERCIO LUBRIFICANTES PEÇAS","CONSELHEIRO LAFAIETE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - CONSELHEIRO LAFAIETE/MG - OS",""],["COMERCIO LUBRIFICANTES PEÇAS - (L)","CONSELHEIRO LAFAIETE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - CONSELHEIRO LAFAIETE/MG - OS",""],["COMPANHIA DO TURISMO - P","GURUPI","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["COOPERTALSE -P","ARACAJU","SE","KIT DE MANUSEIO E CARTA DE COMPRA - ARACAJU/SE - OS",""],["COOPERTALSE -P (L)","ARACAJU","SE","KIT DE MANUSEIO E CARTA DE COMPRA - ARACAJU/SE - OS",""],["COOPERTRANSSERTAO - PETROLINA","PETROLINA","PE","KIT DE MANUSEIO E CARTA DE COMPRA - BA - OS",""],["COOPERTRANSSERTAO - PETROLINA (ATAPE)","PETROLINA","PE","KIT DE MANUSEIO E CARTA DE COMPRA - BA - OS",""],["COOPERVAN SE","LAGARTO","SE","KIT DE MANUSEIO E CARTA DE COMPRA - LAGARTO/SE - OS",""],["COOPERVAN SE - (L)","LAGARTO","SE","KIT DE MANUSEIO E CARTA DE COMPRA - LAGARTO/SE - OS",""],["COOPTRASB -P","SENHOR DO BONFIM","BA","ENVIAR PARA NET",""],["COOTINS - TRANSP. E TUR.","ARAGUATINS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["COOTINS - TRANSP. E TUR. - (L)","ARAGUATINS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["COOTRANRIDE","VALPARAISO DE GOIAS","GO","KIT DE MANUSEIO E CARTA DE COMPRA - BRASILIA/DF - OS",""],["COOTRANSPAL","UNIÃO DOS PALMARES","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["COOTRAVS","AURORA","CE","KIT DE MANUSEIO E CARTA DE COMPRA - AURORA/CE - OS",""],["DANÚBIO AZUL - P","SÃO PAULO","SP","QR CODE",""],["DS TRANSPORTES EXECUTIVOS EIRELI FRETADO","-","-","FRETADO",""],["EDITUR TRANSPORTES","TERESINA","PI","KIT DE MANUSEIO E CARTA DE COMPRA - TERESINA/PI - OS",""],["EFAL TRANSPORTES","SANTA MARIA","RS","COLETA E ENVIO - SANTA MARIA/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["ELUX - EXPRESSO LUXO - P (R)","SÃO PAULO","SP","TERMINAL TIETE",""],["ELUX S.S.","SÃO PAULO","SP","TERMINAL TIETE",""],["EMPRESA ARROIO DO MEIO DE TRANSP.","ARROIO DO MEIO","RS","COLETA E ENVIO - ARROIO DO MEIO/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EMPRESA BRAULINO - TRANSLUZ - P","DIVINÓPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["EMPRESA BRAULINO - TRANSLUZ - P (L)","DIVINÓPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["EMPRESA CRUZ - P","SÃO PAULO","SP","TERMINAL TIETE",""],["EMPRESA DE TRANSPORTES SANTA SILVANA","PELOTAS","RS","COLETA E ENVIO - PELOTAS/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EMPRESA DE TRANSPORTES STA SILVANA","PELOTAS","RS","COLETA E ENVIO - PELOTAS/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EMPRESA GLÓRIA","CARAZINHO","RS","KIT DE MANUSEIO E CARTA DE COMPRA - CARAZINHO/RS - OS","Logistica Sul"],["EMPRESA GONTIJO- P (L)","UBERLÂNDIA","MG","QR CODE",""],["EMPRESA GONTIJO- P (QR CODE)","UBERLÂNDIA","MG","QR CODE",""],["EMPRESA IRMAOS TEIXEIRA","DIVINÓPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["EMPRESA SANTA MARIA","BELO HORIZONTE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["EMPRESA SANTOS E FILHOS","ITABIRA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - JOÃO MONLEVADE/MG - OS",""],["EMPRESA SAO CRISTOVAO","PATOS DE MINAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - PATOS DE MINAS/MG - OS",""],["EMPRESA SÃO JOAO","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EMPRESA UNIÃO - P","ARARANGUA","SC","KIT DE MANUSEIO E CARTA DE COMPRA - ARARANGUA/SC - OS",""],["EMPRESA VENCATO - AUTO ACV","PORTO ALEGRE","RS","QR CODE",""],["EMPRESA VIAÇÃO SÃO JOSE - P (CARTEIRA - QR CODE)","CAMPINA GRANDE","PB","QR CODE",""],["EMPRESA VIAÇÃO SÃO JOSE - P (L)","CAMPINA GRANDE","PB","QR CODE",""],["EMPRESA VIAÇÃO SÃO JOSE - P (QR CODE)","CAMPINA GRANDE","PB","QR CODE",""],["EMPRESA WENDLING","Porto Alegre","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EMTRAM - BA","SALVADOR","BA","FUNCIONÁRIO RETIRA",""],["EXDIL - EXPRESSO DIVINOPOLIS","DIVINÓPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["EXPRESSO AMARELINHO - P","CAPÃO BONITO","SP","KIT DE MANUSEIO E CARTA DE COMPRA - CAPÃO BONITO/SP - OS",""],["EXPRESSO AZUL-P","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO BARROSO","TERESINA","PI","KIT DE MANUSEIO E CARTA DE COMPRA - TERESINA/PI - OS",""],["EXPRESSO BRASILEIRO","TEIXEIRA DE FREITAS","BA","KIT DE MANUSEIO E CARTA DE COMPRA - TEIXEIRA DE FREITAS/BA - OS",""],["EXPRESSO CENTRAL - P","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["EXPRESSO DE LUXO","CARMO DO PARANAÍBA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - CARMO DO PARANAÍBA/MG - OS",""],["EXPRESSO DE PRATA - P","SÃO PAULO","SP","TERMINAL BARRA FUNDA",""],["EXPRESSO EMBAIXADOR","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO FREDERES","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO GARDÊNIA LTDA - P","POUSO ALEGRE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - POUSO ALEGRE/MG - OS",""],["EXPRESSO ITAMARATI S.A - P","SÃO JOSÉ DO RIO PRETO","SP","TERMINAL BARRA FUNDA",""],["EXPRESSO MARINGA","Curitiba","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CURITIBA/PR - OS",""],["EXPRESSO NORDESTE","LONDRINA","PR","COLETA E ENVIO PARA SP - LONDRINA/PR",""],["EXPRESSO NORDESTE -P (L)","LONDRINA","PR","COLETA E ENVIO PARA SP - LONDRINA/PR",""],["EXPRESSO NOSSA SENHORA DA PENHA (EXPRESSO MARINGÁ)","Curitiba","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CURITIBA/PR - OS",""],["EXPRESSO NOSSA SENHORA DA PENHA (EXPRESSO MARINGÁ) -P (L)","Curitiba","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CURITIBA/PR - OS",""],["EXPRESSO NOSSA SENHORA DE FÁTIMA","UMUARAMA","PR","KIT DE MANUSEIO E CARTA DE COMPRA - UMUARAMA/PR - OS",""],["EXPRESSO PALMAR","SANTA VITÓRIA DO PALMAR","RS","ENVIAR PARA NET",""],["EXPRESSO PALMARES","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO PRINCESA DOS CAMPOS - P","CURITIBA","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CURITIBA/PR - OS",""],["EXPRESSO SALU","GURUPI","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["EXPRESSO SANTA RITA","SOLEDADE","RS","COLETA E ENVIO - SOLEDADE/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO SANTA TEREZA","CASCAVEL","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CASCAVEL/PR - OS",""],["EXPRESSO SANTO ANTONIO","MACEIÓ","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["EXPRESSO SÃO MARCOS","SÃO MARCOS","RS","COLETA E ENVIO - CAXIAS DO SUL/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO SÃO MATHEUS LTDA","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["EXPRESSO SÃO MATHEUS LTDA - P (L)","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["EXPRESSO SAO PEDRO","SANTA MARIA","RS","COLETA E ENVIO - SANTA MARIA/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO SETELAGOANO - SETE LAGOAS","SETE LAGOAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - SETE LAGOAS/MG - OS",""],["EXPRESSO SINIMBU LTDA","SANTA CRUZ DO SUL","RS","COLETA E ENVIO - SANTA CRUZ DO SUL/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["EXPRESSO TRANSPEN","SÃO PAULO","SP","AGNALDO",""],["EXPRESSO UNIÃO / MINAS GERAIS","PATOS DE MINAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - PATOS DE MINAS/MG - OS",""],["EXPRESSO UNIÃO / MINAS GERAIS (RC)","PATOS DE MINAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - PATOS DE MINAS/MG - OS",""],["EXPRESSO UNIÃO / MINAS GERAIS (RC) (L)","PATOS DE MINAS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - PATOS DE MINAS/MG - OS",""],["FAUSTÃO TURISMO - FRETADO","-","-","FRETADO",""],["FERNANDO TURISMO - P","MATIAS BARBOSA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - MATIAS BARBOSA/MG - OS",""],["FRONTEIRA TUR","GUAÍBA","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["GOLD TRANSPORTES - FRETADO","-","-","FRETADO",""],["GUERINO SEISCENTO TRANSPORTES - P","TUPÃ","SP","COLETA E ENVIO PARA SP - TUPÃ/SP - OS",""],["GUERINO SEISCENTO TRANSPORTES - P (L) (R)","TUPÃ","SP","COLETA E ENVIO PARA SP - TUPÃ/SP - OS",""],["IRMÃOS FARIA","PEDRALVA","MG","NÃO FAZ",""],["JARUMA - PA","BELEM","PA","KIT DE MANUSEIO E CARTA DE COMPRA - BELEM/PA - OS",""],["JOANDERSON RAMOS","OUROLANDIA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - OUROLANDIA/BA - OS",""],["JORCI BARBOSA DE FREITAS - ME","TRÊS LAGOAS","MS","KIT DE MANUSEIO E CARTA DE COMPRA - TRÊS LAGOAS/MS - OS",""],["JORCI BARBOSA DE FREITAS -P (L)","TRÊS LAGOAS","MS","KIT DE MANUSEIO E CARTA DE COMPRA - TRÊS LAGOAS/MS - OS",""],["JOSÉ MARIA RODRIGUES","JUIZ DE FORA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - MATIAS BARBOSA/MG - OS",""],["KOPERECK TURISMO","PELOTAS","RS","COLETA E ENVIO - PELOTAS/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["KRM / COMPANHIA DO TURISMO - P","GURUPI","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["LEANDRO ANDRADE TURISMO","TERESINA","PI","KIT DE MANUSEIO E CARTA DE COMPRA - TERESINA/PI - OS",""],["LEÃO DE JUDA TRANSPORTES","FORMOSA","GO","KIT DE MANUSEIO E CARTA DE COMPRA - BRASILIA/DF - OS",""],["LEÃO DE JUDA TRANSPORTES (REOBOTE)","FORMOSA","GO","KIT DE MANUSEIO E CARTA DE COMPRA - FORMOSA/GO - OS",""],["LEOCADIOS FRETADO","-","-","FRETADO",""],["LINHAS AMARELAS","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["LITORANEA - P","SÃO PAULO","SP","TERMINAL TIETE",""],["LOPES E CIA","NOVA ERA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - JOÃO MONLEVADE/MG - OS",""],["LOPES E FILHOS","JOÃO MONLEVADE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - JOÃO MONLEVADE/MG - OS",""],["LOURENCI TRANSPORTES COLETIVO LTDA.","SANTA MARIA","RS","COLETA E ENVIO - SANTA MARIA/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["LUCIANO SOBRAL - P","JOAQUIM GOMES","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["MAGNITUR","CARAZINHO","RS","KIT DE MANUSEIO E CARTA DE COMPRA - CARAZINHO/RS - OS","Logistica Sul"],["MARANATA TRANSPORTE","DOURADOS","MS","FUNCIONÁRIO RETIRA",""],["MARTINS TUR","CAMPO GRANDE","MS","KIT DE MANUSEIO E CARTA DE COMPRA - CAMPO GRANDE/MS - OS",""],["MASSET AMB.","MOSSORÓ","RN","KIT DE MANUSEIO E CARTA DE COMPRA - MOSSORÓ/RN - OS",""],["MCR TRANSPORTES","JACOBINA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["MINASTUR TRANSPORTE","GUAÇUÍ","ES","KIT DE MANUSEIO E CARTA DE COMPRA - GUAÇUÍ/ES - OS",""],["MINASTUR TRANSPORTE - [L]","GUAÇUÍ","ES","KIT DE MANUSEIO E CARTA DE COMPRA - GUAÇUÍ/ES - OS",""],["MODELO TRANSPORTES- SIMOES FILHO - BA","SIMÕES FILHO","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["MODELO TRANSPORTES- SIMOES FILHO - BA -P (L)","SIMÕES FILHO","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["MORENA / MARTINS TUR","CAMPO GRANDE","MS","KIT DE MANUSEIO E CARTA DE COMPRA - CAMPO GRANDE/MS - OS",""],["NACIONAL TRANSPORTE","PORTO NACIONAL","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["NAVEGAÇÃO BOM JESUS","TRIUNFO","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["NEURIVAN VICENTE","MOSSORÓ","RN","KIT DE MANUSEIO E CARTA DE COMPRA - MOSSORÓ/RN - OS",""],["NILDINHO TUR","AÇU","RN","KIT DE MANUSEIO E CARTA DE COMPRA - AÇU/RN - OS",""],["NILDINHO TUR - (L)","AÇU","RN","KIT DE MANUSEIO E CARTA DE COMPRA - AÇU/RN - OS",""],["NORMATUR","DIANÓPOLIS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["NOVO HORIZONTE - CAMPINA GRANDE","CAMPINA GRANDE","PB","KIT DE MANUSEIO E CARTA DE COMPRA - PB - OS",""],["NOVO HORIZONTE - VITORIA DA CONQUISTA","VITÓRIA DA CONQUISTA","BA","QR CODE",""],["NOVO HORIZONTE - VITORIA DA CONQUISTA -P (L)","VITÓRIA DA CONQUISTA","BA","QR CODE",""],["NOVOVALE","RIO DE JANEIRO","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - RIO DE JANEIRO/RJ - OS","Evandro"],["NT TRANSPORTE - P","AÇU","RN","KIT DE MANUSEIO E CARTA DE COMPRA - AÇU/RN - OS",""],["NT TRANSPORTE - P (L)","AÇU","RN","KIT DE MANUSEIO E CARTA DE COMPRA - AÇU/RN - OS",""],["OURO VERDE - METROPOLITANO - P","SUMARÉ","SP","COLETA E ENVIO PARA SP - SUMARÉ/SP - OS",""],["PAIXAO TRANSP","CATU","BA","KIT DE MANUSEIO E CARTA DE COMPRA - CATU/BA - OS",""],["PASSARO MARROM - P","SÃO PAULO","SP","TERMINAL TIETE",""],["PASSARO MARROM - P (R)","SÃO PAULO","SP","TERMINAL TIETE",""],["PAULO EDILBERTO COUTINHO","VARGINHA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - VARGINHA/MG - OS",""],["PAULO RICARDO","MONTIVIDIU","GO","FUNCIONÁRIO RETIRA",""],["PESSOATUR TURISMO - P","JOAO MONLEVADE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - JOÃO MONLEVADE/MG - OS",""],["PETITTO","RIBEIRÃO PRETO","SP","COLETA E ENVIO PARA SP - RIBEIRÃO PRETO/SP - OS",""],["PGTUR","CASCAVEL","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CASCAVEL/PR - OS",""],["PIRACICABANA / EMPRESA CRUZ - P","SÃO PAULO","SP","TERMINAL TIETE",""],["PLANALTO TRANSPORTES","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["PLENA TRANSPORTES","JAÚ","SP","COLETA E ENVIO PARA SP - JAÚ/SP - OS","Precisa da carta da plena"],["PLENA TRANSPORTES -P (R)","JAÚ","SP","COLETA E ENVIO PARA SP - JAÚ/SP - OS","Precisa da carta da plena"],["R C . TRANSP","ARAGUATINS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["R.C TRANSP","ARAGUATINS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["RAINHA TRANSPORTES","PELOTAS","RS","COLETA E ENVIO - PELOTAS/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["RAINHA TRANSPORTES [P]","PELOTAS","RS","COLETA E ENVIO - PELOTAS/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS",""],["RÁPIDO D’OESTE LTDA. - P","RIBEIRÃO PRETO","SP","COLETA E ENVIO PARA SP - RIBEIRÃO PRETO/SP - OS",""],["RAPIDO FENIX - P","SAO PAULO","SP","TERMINAL TIETE",""],["RAPIDO FENIX - P (L)","SAO PAULO","SP","TERMINAL TIETE",""],["RAPIDO GOIAS","ANAPOLIS","GO","KIT DE MANUSEIO E CARTA DE COMPRA - ANAPOLIS/GO - OS",""],["RÁPIDO GOIÁS NORTE - P","PORANGATU","GO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["RAPIDO LUXO CAMPINAS - TATUI","SOROCABA","SP","COLETA E ENVIO PARA SP - SOROCABA/SP - OS",""],["RAPTUR TRANSPORTE - GARÇA","GARÇA","SP","COLETA E ENVIO PARA SP - GARÇA/SP - OS",""],["RC TRANSP","ARAGUATINS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["REAL - GRUPO","PASSO FUNDO","RS","COLETA E ENVIO - PASSO FUNDO/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["REUNIDAS","FLORIANOPOLIS","SC","KIT DE MANUSEIO E CARTA DE COMPRA - FLORIANOPOLIS/SC - OS",""],["REUNIDAS PAULISTA","SÃO PAULO","SP","FUNCIONÁRIO RETIRA",""],["RIO TINTO","JOÃO PESSOA","PB","KIT DE MANUSEIO E CARTA DE COMPRA - PB - OS",""],["RIOCARD MAIS - P","RIO DE JANEIRO","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - RIO DE JANEIRO/RJ - OS","Evandro"],["RIOPAR PARTICIPAÇÕES - P","RIO DE JANEIRO","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - RIO DE JANEIRO/RJ - OS","Evandro"],["RIZZATTI","RESTINGA SECA","RS","COLETA E ENVIO - RESTINGA SECA/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["RM TRANSPORTES","AREIA BRANCA","RN","KIT DE MANUSEIO E CARTA DE COMPRA - AREIA BRANCA/RN - OS",""],["RODOVIÁRIO E TURISMO SÃO JOSÉ - P (L)","GUARATINGUETA","SP","QR CODE",""],["RODOVIÁRIO E TURISMO SÃO JOSÉ- QR CODE","GUARATINGUETA","SP","QR CODE",""],["RODRIGUES TURISMO - P","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["ROMI SMART LOCADORA - FRETADO","-","-","FRETADO",""],["ROTA DO SOL","GUARÁ","DF","KIT DE MANUSEIO E CARTA DE COMPRA - BRASILIA/DF - OS",""],["ROTA TRANSPORTES - P","ITABUNA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - ILHEUS/BA - OS",""],["ROTA TRANSPORTES - P (L)","ITABUNA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - ILHEUS/BA - OS",""],["S. SEBASTIÃO DO PARAISO","SÃO SEBASTIÃO DO PARAÍSO","MG","KIT DE MANUSEIO E CARTA DE COMPRA - SÃO SEBASTIÃO DO PARAÍSO/MG - OS",""],["SANTA FÉ","BELO HORIZONTE","MG","QR CODE",""],["SANTO ANJO","FLORIANOPOLIS","SC","KIT DE MANUSEIO E CARTA DE COMPRA - FLORIANOPOLIS/SC - OS",""],["SANTO ANJO [L]","FLORIANOPOLIS","SC","KIT DE MANUSEIO E CARTA DE COMPRA - FLORIANOPOLIS/SC - OS",""],["SARTORI E SARTORI TURISMO [P]","TERRA BOA","PR","KIT DE MANUSEIO E CARTA DE COMPRA - TERRA BOA/PR - OS",""],["SINDPASS - P","BARRA MANSA","RJ","FUNCIONÁRIO RETIRA",""],["SM TRANSPORTE COLETIVO LTDA","BELO HORIZONTE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["SM TRANSPORTE COLETIVO LTDA -P (L)","BELO HORIZONTE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["SOCALTUR","IVOTI","RS","COLETA E ENVIO - IVOTI/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["SOLEDADE TURISMO","SOLEDADE","RS","COLETA E ENVIO - SOLEDADE/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["THEODORO TRANSPORTES","BIRIGÜI","SP","COLETA E ENVIO PARA SP - BIRIGÜI/SP - OS",""],["TOCANTINENSE - P","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["TOCANTINENSE - P (L)","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["TOCANTINS TRANSPORTE - P","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["TRANSA TRANSPORTES","TRES RIOS","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - TRES RIOS/RJ - OS",""],["TRANSA TRANSPORTES - P","TRES RIOS","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - TRES RIOS/RJ - OS",""],["TRANSCERRADO TRANSPORTES - P","PALMAS","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["TRANSCOL TRANSPORTES - RS","SANTA VITÓRIA DO PALMAR","RS","COLETA E ENVIO - SANTA VITÓRIA DO PALMAR/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["TRANSCOTTA- P","OURO PRETO","MG","KIT DE MANUSEIO E CARTA DE COMPRA - OURO PRETO/MG - OS",""],["TRANSERTÃO","NOSSA SENHORA DA GLÓRIA","SE","KIT DE MANUSEIO E CARTA DE COMPRA - NOSSA SENHORA DA GLÓRIA/SE - OS",""],["TRANSISAAK TURISMO","CURITIBA","PR","KIT DE MANUSEIO E CARTA DE COMPRA - CURITIBA/PR - OS",""],["TRANSNOVA TRANSP. COL. (OESTE DE MINAS) - P","DIVINÓPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["TRANSOARES - P","FEIRA DE SANTANA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["TRANSOARES - P (L)","FEIRA DE SANTANA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["TRANSP. VSF","PETROLINA","PE","KIT DE MANUSEIO E CARTA DE COMPRA - BA - OS",""],["TRANSP. VSF - P - (ATACIPE)","PETROLINA","PE","KIT DE MANUSEIO E CARTA DE COMPRA - BA - OS",""],["TRANSPASSE - P","NATAL","RN","KIT DE MANUSEIO E CARTA DE COMPRA - NATAL/RN - OS",""],["TRANSPEN","SÃO PAULO","SP","AGNALDO",""],["TRANSPEN - TRANSFADA","SÃO PAULO","SP","AGNALDO",""],["TRANSPORTES KALINA","IRANDUBA","AM","FUNCIONÁRIO RETIRA",""],["TRANSPORTES REAL LTDA","CAMPINA GRANDE","PB","KIT DE MANUSEIO E CARTA DE COMPRA - PB - OS",""],["TRANSPRATA","JOAO MONLEVADE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - JOÃO MONLEVADE/MG - OS",""],["TRANSUR TRANSPORTE-P","JUIZ DE FORA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - MATIAS BARBOSA/MG - OS",""],["TRIUNFO TRANSP","CONCEIÇÃO DO MATO DENTRO","MG","KIT DE MANUSEIO E CARTA DE COMPRA - CONCEIÇÃO DO MATO DENTRO/MG - OS",""],["TURISMAR","MARILIA","SP","COLETA E ENVIO PARA SP - MARILIA/SP - OS",""],["TURISMAR -P (L)","MARILIA","SP","COLETA E ENVIO PARA SP - MARILIA/SP - OS",""],["TURISMO SÃO MIGUEL LTDA","FORMIGA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - FORMIGA/MG - OS",""],["UEBS - FRETADO","-","-","FRETADO",""],["ULTRA - GRUPO GETUR","SÃO PAULO","SP","TERMINAL JABAQUARA",""],["UMAM - AL","MACEIÓ","AL","KIT DE MANUSEIO E CARTA DE COMPRA - MACEIO/AL - OS",""],["UNESUL - RS","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["UTB - P","BRASILIA","DF","KIT DE MANUSEIO E CARTA DE COMPRA - BRASILIA/DF - OS",""],["UTIL UNIÃO TRANSPORTE DE LUXO","RIO DE JANEIRO","RJ","FUNCIONÁRIO RETIRA",""],["UTIL UNIÃO TRANSPORTE DE LUXO -P (L)","RIO DE JANEIRO","RJ","FUNCIONÁRIO RETIRA",""],["VALE DO DELTA - P","PARNAÍBA","PI","KIT DE MANUSEIO E CARTA DE COMPRA - PARNAÍBA/PI - OS",""],["VALE DO DELTA (M C CASTRO CIA) - P","PARNAÍBA","PI","KIT DE MANUSEIO E CARTA DE COMPRA - PARNAÍBA/PI - OS",""],["VALE DO TIETE","SÃO PAULO","SP","TERMINAL BARRA FUNDA",""],["VAT- VIAÇÃO ARAÇATUBA - P","DRACENA","SP","COLETA E ENVIO PARA SP - DRACENA/SP - OS",""],["VB TRANSP. E TUR - SUBURBANO","RIO CLARO","SP","COLETA E ENVIO PARA SP - CAMPINAS/SP - OS",""],["VB TRANSP. E TUR. - P","CAMPINAS","SP","COLETA E ENVIO PARA SP - CAMPINAS/SP - OS",""],["VERDES MARES - P","JOINVILLE","SC","KIT DE MANUSEIO E CARTA DE COMPRA - JOINVILLE/SC - OS",""],["VIAÇÃO 1001 TRANSP","SÃO PAULO","SP","ALE",""],["VIAÇÃO ÁGUIA BRANCA - BAHIA","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["VIAÇÃO ÁGUIA BRANCA - ESPÍRITO SANTO","CARIACICA","ES","KIT DE MANUSEIO E CARTA DE COMPRA - CARIACICA/ES - OS",""],["VIAÇÃO ÁGUIA BRANCA - GOVERNADOR VALADARES","GOVERNADOR VALADARES","MG","KIT DE MANUSEIO E CARTA DE COMPRA - GOVERNADOR VALADARES/MG - OS",""],["VIAÇÃO ARAGUAIA - P","GURUPI","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["VIAÇÃO ASA VERDE -P","RIO VERDE","GO","KIT DE MANUSEIO E CARTA DE COMPRA - RIO VERDE/GO - OS",""],["VIAÇÃO BASSAMAR","JUIZ DE FORA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - MATIAS BARBOSA/MG - OS",""],["VIAÇÃO BONAVITA - P (R)","CAMPINAS","SP","COLETA E ENVIO PARA SP - CAMPINAS/SP - OS",""],["VIAÇÃO BRASIL","MONTES CLAROS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - MONTES CLAROS/MG - OS",""],["VIAÇÃO CIDADE DE ALAGOINHAS - P","ALAGOINHAS","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["VIAÇÃO CIDADE SOL","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["VIAÇÃO CIDADE SOL -P (L)","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["VIAÇÃO CITRAL","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIAÇÃO COMETA","SÃO PAULO","SP","ALE",""],["VIAÇÃO CRUZEIRO DO SUL","CAMPO GRANDE","MS","KIT DE MANUSEIO E CARTA DE COMPRA - CAMPO GRANDE/MS - OS",""],["VIAÇÃO CRUZEIRO DO SUL -P (L)","CAMPO GRANDE","MS","KIT DE MANUSEIO E CARTA DE COMPRA - CAMPO GRANDE/MS - OS",""],["VIAÇÃO ESTRELA","GOIÂNIA","GO","FUNCIONÁRIO RETIRA",""],["VIAÇÃO EXPRESSO CAXIENSE - P","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIAÇÃO FEITORIA","NOVO HAMBURGO","RS","COLETA E ENVIO - NOVO HAMBURGO/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIAÇÃO GARCIA - P","LONDRINA","PR","COLETA E ENVIO PARA SP - LONDRINA/PR",""],["VIAÇÃO GARCIA - P [L]","LONDRINA","PR","COLETA E ENVIO PARA SP - LONDRINA/PR",""],["VIAÇÃO HELIOS","CARAZINHO","RS","KIT DE MANUSEIO E CARTA DE COMPRA - CARAZINHO/RS - OS","Logistica Sul"],["VIAÇÃO ITAQUERI - P","PIRACICABA","SP","QR CODE",""],["VIAÇÃO ITAQUERI -P (L)","PIRACICABA","SP","QR CODE",""],["VIAÇÃO ITAUNA","BELO HORIZONTE","MG","QR CODE",""],["VIAÇÃO JAUÁ LTDA","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["VIAÇÃO JUINA","TANGARÁ DA SERRA","MT","KIT DE MANUSEIO E CARTA DE COMPRA - TANGARÁ DA SERRA/MT - OS",""],["VIAÇÃO LIRA","CAMPINAS","SP","COLETA E ENVIO PARA SP - CAMPINAS/SP - OS",""],["VIAÇÃO LIRA -P (R)","CAMPINAS","SP","COLETA E ENVIO PARA SP - CAMPINAS/SP - OS",""],["VIAÇÃO LOUZADA","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIAÇÃO MARILANDIA LTDA","COLATINA","ES","FUNCIONÁRIO RETIRA",""],["VIAÇÃO MARILANDIA -P (L)","COLATINA","ES","FUNCIONÁRIO RETIRA",""],["VIAÇÃO MOTTA - MS","CAMPO GRANDE","MS","KIT DE MANUSEIO E CARTA DE COMPRA - CAMPO GRANDE/MS - OS",""],["VIAÇÃO NORTE/SUL","ARAGUAÍNA","TO","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO NACIONAL/TO - OS",""],["VIAÇÃO NOVO HORIZONTE - MURIAE","MURIAÉ","MG","KIT DE MANUSEIO E CARTA DE COMPRA - MURIAÉ/MG - OS",""],["VIAÇÃO OESTE DE MINAS - P","DIVINÓPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["VIAÇÃO OURO E PRATA-P","IJUI","RS","COLETA E ENVIO - IJUI/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIAÇÃO PARATY - JAÚ MUNICIPAL - P","JAÚ","SP","COLETA E ENVIO PARA SP - JAÚ/SP - OS",""],["VIAÇÃO PARATY / ARARAQUARA - P","ARARAQUARA","SP","COLETA E ENVIO PARA SP - ARARAQUARA/SP - OS",""],["VIAÇÃO PARATY / ARARAQUARA - P [INATIVO]","JAÚ","SP","COLETA E ENVIO PARA SP - JAÚ/SP - OS",""],["VIAÇÃO PARATY / JAÚ INTERMUNICIPAL - P","JAÚ","SP","COLETA E ENVIO PARA SP - JAÚ/SP - OS",""],["VIAÇÃO PARATY / JAÚ MUNICIPAL - P","JAÚ","SP","COLETA E ENVIO PARA SP - JAÚ/SP - OS",""],["VIAÇÃO PÁSSARO VERDE","BELO HORIZONTE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["VIAÇÃO PÁSSARO VERDE - P (L) (R)","BELO HORIZONTE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["VIAÇÃO PIRACICABANA - P","SÃO PAULO","SP","TERMINAL TIETE",""],["VIAÇÃO PIRACICABANA - P (L)","SÃO PAULO","SP","TERMINAL TIETE",""],["VIAÇÃO PLATINA / GOIÁS","UBERLÂNDIA","MG","QR CODE",""],["VIACAO PROGRESSO","TRÊS RIOS","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - TRES RIOS/RJ - OS",""],["VIACAO PROGRESSO -P (L)","TRÊS RIOS","RJ","KIT DE MANUSEIO E CARTA DE COMPRA - TRES RIOS/RJ - OS",""],["VIAÇÃO REGIONAL","SALVADOR","BA","KIT DE MANUSEIO E CARTA DE COMPRA - SALVADOR/BA - OS",""],["VIACAO RIO DOCE - BA","VITÓRIA DA CONQUISTA","BA","KIT DE MANUSEIO E CARTA DE COMPRA - VITORIA DA CONQUISTA/BA - OS","AGUARDAR AGENDAMENTO"],["VIACAO RIO DOCE - CARATINGA","CARATINGA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - CARATINGA/MG - OS",""],["VIAÇÃO SANDRA (INTERMUNICIPAL)","PIRAPORA","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["VIACAO SANTA CRUZ - VARGINHA","VARGINHA","MG","QR CODE",""],["VIAÇÃO SÃO BENTO - P","RIBEIRÃO PRETO","SP","COLETA E ENVIO PARA SP - RIBEIRÃO PRETO/SP - OS",""],["VIAÇÃO SÃO CRISTOVÃO - P","DIVINOPOLIS","MG","KIT DE MANUSEIO E CARTA DE COMPRA - DIVINÓPOLIS/MG - OS",""],["VIAÇÃO SÃO GABRIEL - SÃO MATEUS - P","SÃO MATHEUS","ES","KIT DE MANUSEIO E CARTA DE COMPRA - SÃO MATHEUS/ES - OS",""],["VIAÇÃO SERTANEJA","BELO HORIZONTE","MG","KIT DE MANUSEIO E CARTA DE COMPRA - BELO HORIZONTE/MG - OS","CONTROLVTCARD"],["VIACAO SETE","TERESINA","MA","KIT DE MANUSEIO E CARTA DE COMPRA - TERESINA/PI - OS",""],["VIACAO TALISMA","RIO GRANDE DA SERRA","SP","COLETA E ENVIO PARA SP - RIO GRANDE DA SERRA/SP - OS",""],["VIAÇÃO UMUARAMA - P - MS","ITAQUIRAÍ","MS","KIT DE MANUSEIO E CARTA DE COMPRA - ITAQUIRAI/MS - OS",""],["VIAÇÃO UMUARAMA-PR","UMUARAMA","PR","KIT DE MANUSEIO E CARTA DE COMPRA - UMUARAMA/PR - OS",""],["VIAÇÃO UNIÃO SANTA CRUZ - PORTO ALEGRE","PORTO ALEGRE","RS","KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIAÇÃO URBANA GUARULHOS","SÃO PAULO","SP","NÃO FAZ",""],["VIAÇÃO VENANCIO AIRES","VENANCIO AIRES","RS","COLETA E ENVIO - VENANCIO AIRES/RS - OS  //  KIT DE MANUSEIO E CARTA DE COMPRA - PORTO ALEGRE/RS - OS","Logistica Sul"],["VIASOL TRANSPORTES - P","ARARAS","SP","COLETA E ENVIO PARA SP - ARARAS/SP - OS",""],["VIATUR TRANSPORTE","CAMPO GRANDE","MS","QR CODE",""],["VIZA TRANSPORTES","FOZ DO IGUAÇU","PR","KIT DE MANUSEIO E CARTA DE COMPRA - FOZ DO IGUAÇU/PR - OS",""],["WG TRANSPORTES","SÃO JOSÉ DO NORTE","RS","ENVIAR PARA NET",""]];
+
+// B[i] = [fornecedor, cidade, uf, email, obs]
+function lookupEmail(fornecedor) {
+  var fn = fornecedor.toUpperCase().trim();
+  var words = fn.split(' ').filter(function(w){return w.length>3;});
+  for(var i=0;i<B.length;i++){
+    var bf = B[i][0].toUpperCase().trim();
+    if(fn===bf||fn.indexOf(bf)===0||bf.indexOf(fn.split(' ').slice(0,3).join(' '))===0) return B[i][3];
+  }
+  for(var j=0;j<words.length;j++){
+    for(var k=0;k<B.length;k++){
+      if(B[k][0].toUpperCase().indexOf(words[j])>=0 && B[k][3].indexOf('KIT')>=0) return B[k][3];
+    }
+  }
+  return 'SEM MAPEAMENTO';
+}
+
+function R(v){
+  var s=v.toFixed(2).replace('.',',');
+  return 'R$ '+s.replace(/(\d)(?=(\d{3})+,)/g,'$1.');
+}
+
+// === DATA (from PDFs) ===
+var CARTAS=[
+  {nr:'66856',dt:'17/04/2026',hr:'09:30',forn:'SM TRANSPORTE COLETIVO LTDA - P (L)',cidade:'BELO HORIZONTE',uf:'MG',total:734.19,comp:'CLINTON RAMACHOTTE',pago:true,pedido:null,empresa:null,pdf:'66856-CartaCompra__1_.pdf',
+   itens:[{c:'682004',d:'SM TRANSP. - JUATUBA / PARÁ DE MINAS (S/TX)',q:20,v:17.70},{c:'682003',d:'SM TRANSP. - PARÁ DE MINAS / JUATUBA (C/TX)',q:19,v:20.01}]},
+  {nr:'66857',dt:'17/04/2026',hr:'09:30',forn:'AUTO VIAÇÃO SÃO LUIZ MG - (L)',cidade:'BELO HORIZONTE',uf:'MG',total:397.50,comp:'CLINTON RAMACHOTTE',pago:true,pedido:null,empresa:null,pdf:'66857-CartaCompra__1_.pdf',
+   itens:[{c:'740113',d:'SAO LUIZ MG - CAPELA NOVA / CARANDAI S/TX',q:15,v:13.25},{c:'740114',d:'SAO LUIZ MG - CARANDAI / CAPELA NOVA S/TX',q:15,v:13.25}]},
+  {nr:'66864',dt:'17/04/2026',hr:'09:30',forn:'VIAÇÃO PÁSSARO VERDE - P (L) (R)',cidade:'BELO HORIZONTE',uf:'MG',total:2373.62,comp:'CLINTON RAMACHOTTE',pago:true,pedido:null,empresa:null,pdf:'66864-CartaCompra__1_.pdf',
+   itens:[{c:'972998',d:'PASSARO VERDE - CURVELO/PRES.JUSCELINO C1134',q:18,v:27.54},{c:'973013',d:'PASSARO VERDE - OURO PRETO/ITABIRITO AC-L',q:20,v:22.95},{c:'973012',d:'PASSARO VERDE - ITABIRITO/OURO PRETO AC-L',q:20,v:20.95},{c:'973007',d:'PASSARO VERDE - CACHOEIRA CAMPO/ITABIRITO',q:40,v:8.85},{c:'972997',d:'PASSARO VERDE - PRES.JUSCELINO/CURVELO C1134',q:18,v:26.05},{c:'973008',d:'PASSARO VERDE - ITABIRITO/CACHOEIRA CAMPO',q:20,v:8.85}]},
+  {nr:'66868',dt:'17/04/2026',hr:'09:30',forn:'VIAÇÃO SERTANEJA',cidade:'BELO HORIZONTE',uf:'MG',total:995.00,comp:'CLINTON RAMACHOTTE',pago:true,pedido:null,empresa:null,pdf:'66868-CartaCompra__1_.pdf',
+   itens:[{c:'72304',d:'V.SERTANEJA - PARA DE MINAS/ENTRONC JUATUBA BR262',q:20,v:16.97},{c:'72302',d:'V.SERTANEJA - MARTINHO CAMPOS/ABAETÉ',q:40,v:16.39}]},
+  {nr:'66888',dt:'17/04/2026',hr:'09:30',forn:'EMPRESA SANTA MARIA',cidade:'BELO HORIZONTE',uf:'MG',total:2287.50,comp:'CLINTON RAMACHOTTE',pago:true,pedido:null,empresa:null,pdf:'66888-CartaCompra__1_.pdf',
+   itens:[{c:'750002',d:'E.SANTA MARIA - JUATUBA/PARA DE MINAS (S/TX)',q:19,v:17.70},{c:'750001',d:'E.SANTA MARIA - BH/PARA DE MINAS (S/TX)',q:16,v:45.10},{c:'750003',d:'E.SANTA MARIA - PARA DE MINAS/BH (S/TX)',q:16,v:45.10},{c:'750005',d:'E.SANTA MARIA - NOVA SERRANA/PARA DE MINAS (C/TX)',q:20,v:25.40}]},
+  {nr:'66957',dt:'28/04/2026',hr:'10:28',forn:'AUTO VIAÇÃO SÃO LUIZ MG - (L)',cidade:'BELO HORIZONTE',uf:'MG',total:479.80,comp:'FABIO OLIVEIRA MAGALHAES',pago:true,pedido:'1050591',empresa:'ARCADIS LOGOS S.A.',pdf:'66957-CartaCompra__1_.pdf',
+   itens:[{c:'740115',d:'SAO LUIZ MG - BH/CONS.LAFAIETE (C/TX)',q:4,v:63.50},{c:'741016',d:'SAO LUIZ MG - CONS.LAFAIETE/BH (C/TX)',q:4,v:56.45}]},
+  {nr:'66960',dt:'28/04/2026',hr:'10:28',forn:'VIAÇÃO PÁSSARO VERDE - P (L) (R)',cidade:'BELO HORIZONTE',uf:'MG',total:470.20,comp:'FABIO OLIVEIRA MAGALHAES',pago:true,pedido:'1050591',empresa:'ARCADIS LOGOS S.A.',pdf:'66960-CartaCompra__1_.pdf',
+   itens:[{c:'973006',d:'PASSARO VERDE - OURO PRETO/BH (C/TX)',q:4,v:56.00},{c:'973005',d:'PASSARO VERDE - BH/OURO PRETO (C/TX)',q:4,v:61.55}]}
+];
+
+var KIT={
+  '1050591':['60500-EnvelopeFuncionarios.pdf','60500-GuiaEntrega.pdf','60500-MapaEncomendas.pdf'],
+  '1052490':['60447-EnvelopeFuncionarios.pdf','60447-GuiaEntrega.pdf','60447-MapaEncomendas.pdf'],
+  '1054612':['60524-EnvelopeFuncionarios.pdf','60524-GuiaEntrega.pdf','60524-MapaEncomendas.pdf']
+};
+
+var ROM=[
+  {p:'1050591',enc:'1745649',emp:'ARCADIS LOGOS S.A.',end:'RUA PARAÍBA, 1465 - SAVASSI, 3° ANDAR',cid:'BELO HORIZONTE',uf:'MG',cep:'30130-141',resp:'KELLY',env:3,tot:950.00,cartas:['66957','66960'],
+   func:[
+     {n:'PATRICIA APARECIDA RIBEIRO',m:'AL08665',d:'DMA-ORE-BH',per:'01/05 a 31/05/2026',itens:[{c:'973005',d:'PASSARO VERDE - BH/OURO PRETO (C/TX)',q:4,v:61.55},{c:'973006',d:'PASSARO VERDE - OURO PRETO/BH (C/TX)',q:4,v:56.00}]},
+     {n:'THAIS RODRIGUES DE OLIVEIRA',m:'AL07073',d:'DMA-ORC-BH',per:'01/05 a 31/05/2026',itens:[{c:'740115',d:'SAO LUIZ MG - BH/CONS.LAFAIETE (C/TX)',q:4,v:63.50},{c:'741016',d:'SAO LUIZ MG - CONS.LAFAIETE/BH (C/TX)',q:4,v:56.45}]}
+   ]},
+  {p:'1052490',enc:'1747995',emp:'VIX TRANSPORTES DEDICADOS LTDA',end:'RUA HORÁCIO DE QUEIROS, 188 - CENTRO, SALA 302',cid:'CONSELHEIRO LAFAIETE',uf:'MG',cep:'36400-050',resp:'POLIANA BERTOLA MIRANDA',env:1,tot:352.00,cartas:[],
+   func:[{n:'MATEUS FELIPE DE OLIVEIRA ALVES',m:'55023237',d:'MRS CON.LAF.',per:'30/04 a 31/05/2026',itens:[{c:'622003',d:'COM LUBRIFICANTES - CONS.LAFAIETE/CONGONHAS',q:40,v:8.80}]}]},
+  {p:'1054612',enc:'1750971',emp:'ENESA ENGENHARIA S.A.',end:'AV. GETÚLIO VARGAS, 4032 - CARNEIRINHOS',cid:'JOÃO MONLEVADE',uf:'MG',cep:'35930-002',resp:'PRISCILLA TAVARES',env:9,tot:4781.50,cartas:[],
+   func:[
+     {n:'AMANDA MILENE LUCAS',m:'12300580',d:'123.01.108',per:'01/05 a 31/05/2026',itens:[{c:'74301',d:'LOPES E CIA - NOVA ERA/JOÃO MONLEVADE VV',q:46,v:12.95}]},
+     {n:'ANA PAULA SABINO PEREIRA',m:'12300720',d:'123.01.001',per:'01/05 a 31/05/2026',itens:[{c:'74301',d:'LOPES E CIA - NOVA ERA/JOÃO MONLEVADE VV',q:48,v:12.95}]},
+     {n:'ANTONIO CARLOS AZEVEDO COTA',m:'12300708',d:'123.01.001',per:'01/05 a 31/05/2026',itens:[{c:'123001',d:'LOPES E FILHOS - JOAO MONLEVADE/RIO PIRACICABA',q:42,v:10.35}]},
+     {n:'EDSON ROBERTO DA CRUZ',m:'12300838',d:'123.01.002',per:'01/05 a 31/05/2026',itens:[{c:'74301',d:'LOPES E CIA - NOVA ERA/JOÃO MONLEVADE VV',q:40,v:12.95}]},
+     {n:'GUSTAVO EMANUEL SIQUEIRA DE',m:'12300476',d:'123.01.106',per:'01/05 a 31/05/2026',itens:[{c:'74301',d:'LOPES E CIA - NOVA ERA/JOÃO MONLEVADE VV',q:52,v:12.95}]},
+     {n:'ISAIAS NEVES DOS REIS',m:'12300357',d:'123.01.010',per:'01/05 a 31/05/2026',itens:[{c:'74301',d:'LOPES E CIA - NOVA ERA/JOÃO MONLEVADE VV',q:34,v:12.95}]},
+     {n:'MATHEUS EDSON LOUBACK',m:'12300595',d:'123.01.010',per:'01/05 a 31/05/2026',itens:[{c:'1414',d:'TRANSPRATA - JOAO MONLEVADE/SAO DOMINGOS DO PRATA VV',q:40,v:18.20}]},
+     {n:'RHUAN PABLO GONCALVES TOME',m:'12300375',d:'123.01.106',per:'01/05 a 31/05/2026',itens:[{c:'123001',d:'LOPES E FILHOS - JOAO MONLEVADE/RIO PIRACICABA',q:28,v:10.35}]},
+     {n:'THAISSA LIMA DE OLIVEIRA NUNES',m:'12300775',d:'123.01.105',per:'01/05 a 31/05/2026',itens:[{c:'125002',d:'PESSOATUR - CONCEICAO DE PIRACICABA/JOAO MONLEVADE',q:20,v:12.00},{c:'125001',d:'PESSOATUR - JOAO MONLEVADE/CONCEICAO DE PIRACICABA',q:20,v:12.00}]}
+   ]}
+];
+
+// === MODAL ===
+function dlModal(files, title) {
+  var el=document.getElementById('modal');
+  if(el) el.remove();
+  var d=document.createElement('div');
+  d.id='modal';
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:flex;align-items:center;justify-content:center';
+  var rows=files.map(function(f,i){return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:12px"><strong style="color:#2563eb;min-width:18px">'+(i+1)+'.</strong><span style="font-family:monospace;font-size:11px;flex:1">'+f+'</span><span class="b in" style="font-size:10px">PDF</span></div>';}).join('');
+  d.innerHTML='<div style="background:#fff;border:1px solid #e2e6ed;padding:22px;max-width:500px;width:92%;box-shadow:0 20px 50px rgba(0,0,0,.3)">'
+    +'<div style="font-weight:600;font-size:14px;margin-bottom:3px">📎 '+title+'</div>'
+    +'<div style="font-size:11px;color:#6b7280;margin-bottom:14px">Anexe esses arquivos no e-mail</div>'
+    +'<div style="background:#f8f9fb;border:1px solid #e2e6ed;padding:10px;margin-bottom:14px">'+rows+'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+    +'<button class="btn bo bsm" onclick="cpList(''+files.join('|')+'')">⎘ Copiar lista</button>'
+    +'<button class="btn bp bsm" onclick="document.getElementById('modal').remove()">Fechar</button>'
+    +'</div></div>';
+  document.body.appendChild(d);
+  d.addEventListener('click',function(e){if(e.target===d)d.remove();});
+}
+
+function cpList(str){
+  var files=str.split('|');
+  var txt='Arquivos para anexar:\n'+files.map(function(f,i){return (i+1)+'. '+f;}).join('\n');
+  navigator.clipboard.writeText(txt).then(function(){
+    var btn=document.querySelector('#modal .btn.bo');
+    if(btn){btn.textContent='✓ Copiado!';setTimeout(function(){btn.textContent='⎘ Copiar lista';},2000);}
+  });
+}
+
+// === DASHBOARD ===
+function rDash(){
+  var rows=CARTAS.map(function(c){
+    var e=lookupEmail(c.forn);
+    var sh=e.replace('KIT DE MANUSEIO E CARTA DE COMPRA - ','').replace('KIT\xa0DE\xa0MANUSEIO E CARTA\xa0DE\xa0COMPRA - ','');
+    var st=c.pedido?'<span class="b ok">✓ Assoc.</span>':'<span class="b wn">⚠ Sem pedido</span>';
+    return '<tr><td class="mn fw6" style="color:#2563eb">'+c.nr+'</td><td style="max-width:150px">'+c.forn+'</td><td>'+c.cidade+'/'+c.uf+'</td><td class="mn">'+R(c.total)+'</td><td class="mn">'+(c.pedido||'<span class="mu">—</span>')+'</td><td>'+(c.empresa||'<span class="mu">—</span>')+'</td><td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+e+'">'+sh+'</td><td>'+st+'</td></tr>';
+  }).join('');
+  document.getElementById('tb-dash').innerHTML=rows;
+  rCk('ck-bh',['Carta 66856 — SM Transporte','Carta 66857 — São Luiz MG','Carta 66864 — Pássaro Verde','Carta 66868 — Sertaneja','Carta 66888 — Santa Maria','Cartas 66957+66960 — ARCADIS','Kit 60500: Envelope+Guia+Mapa','Comprovantes conferidos','E-mail BH/MG enviado']);
+  rCk('ck-jm',['Pedido 1054612 — ENESA Engenharia','Kit 60524: Envelope+Guia+Mapa','9 envelopes separados','Mapa conferido (370 itens / R$4.781,50)','E-mail João Monlevade/MG enviado']);
+}
+
+function rCk(id,items){
+  document.getElementById(id).innerHTML=items.map(function(t,i){
+    return '<div class="ci" id="ci-'+id+'-'+i+'"><input type="checkbox" id="ck-'+id+'-'+i+'" onchange="tCk('ci-'+id+'-'+i+'')"><label for="ck-'+id+'-'+i+'">'+t+'</label></div>';
+  }).join('');
+}
+
+function tCk(id){var el=document.getElementById(id);el.classList.toggle('dn',el.querySelector('input').checked);}
+
+// === SOLICITAÇÕES ===
+function rSol(){
+  var t=(document.getElementById('s-sol').value||'').toLowerCase();
+  var data=t?CARTAS.filter(function(c){return c.nr.indexOf(t)>=0||c.forn.toLowerCase().indexOf(t)>=0||(c.pedido||'').indexOf(t)>=0||c.cidade.toLowerCase().indexOf(t)>=0;}):CARTAS;
+  document.getElementById('tb-sol').innerHTML=data.map(function(c){
+    var e=lookupEmail(c.forn);
+    var sh=e.replace('KIT DE MANUSEIO E CARTA DE COMPRA - ','');
+    var k=c.pedido?KIT[c.pedido]||[]:[];
+    var kBtn=k.length?'<span class="b ok" style="cursor:pointer" onclick="dlModal('+JSON.stringify([c.pdf].concat(k))+','Carta '+c.nr+' + Kit')">📎 '+(k.length+1)+' docs</span>':'<span class="b in" style="cursor:pointer" onclick="dlModal('+JSON.stringify([c.pdf])+','Carta '+c.nr+'')">📄 Carta</span>';
+    var st=c.pedido?'<span class="b ok">✓ Assoc.</span>':'<span class="b wn">⚠ Sem pedido</span>';
+    return '<tr><td class="mn fw6" style="color:#2563eb">'+c.nr+'</td><td>'+c.dt+' '+c.hr+'</td><td style="max-width:150px">'+c.forn+'</td><td>'+c.cidade+'</td><td>'+c.uf+'</td><td class="mn">'+R(c.total)+'</td><td class="mu">'+c.comp+'</td><td class="mn">'+(c.pedido?'<span style="color:#2563eb">'+c.pedido+'</span>':'<span class="mu">—</span>')+'</td><td>'+(c.empresa||'<span class="mu">—</span>')+'</td><td>'+kBtn+'</td><td style="font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+e+'">'+sh+'</td><td>'+(c.pago?'<span class="b ok">✓</span>':'<span class="b er">✗</span>')+'</td><td>'+st+'</td></tr>';
+  }).join('');
+}
+
+// === ROMANEIOS ===
+function rRom(){
+  document.getElementById('tb-rom').innerHTML=ROM.map(function(r){
+    var k=KIT[r.p]||[];
+    var ct=r.cartas.length?r.cartas.map(function(n){return '<span class="b in">'+n+'</span>';}).join(' '):'<span class="b wn">Sem assoc.</span>';
+    var kBtn=k.length?'<button class="btn bo bsm" onclick="dlModal('+JSON.stringify(k)+','Kit Pedido '+r.p+'')">📎 '+k.length+' docs</button>':'<span class="b er">—</span>';
+    return '<tr><td class="mn fw6" style="color:#2563eb">'+r.p+'</td><td class="mn">'+r.enc+'</td><td>'+r.emp+'</td><td>'+r.cid+'/'+r.uf+'</td><td>'+r.resp+'</td><td class="mn fw6">'+r.env+'</td><td class="mn">'+R(r.tot)+'</td><td>'+ct+'</td><td>'+kBtn+'</td></tr>';
+  }).join('');
+  document.getElementById('tb-func').innerHTML=ROM.flatMap(function(r){
+    return r.func.flatMap(function(f){
+      return f.itens.map(function(it,ix){
+        return '<tr><td class="mn mu">'+(ix===0?r.p:'')+'</td><td>'+(ix===0?r.emp:'')+'</td><td>'+(ix===0?'<strong>'+f.n+'</strong>':'')+'</td><td class="mn mu">'+(ix===0?f.m:'')+'</td><td class="mn">'+it.c+'</td><td style="max-width:260px">'+it.d+'</td><td class="mn fw6" style="color:#2563eb">'+it.q+'</td><td class="mn">'+R(it.v)+'</td><td class="mn">'+R(it.q*it.v)+'</td><td class="mu" style="font-size:11px">'+(ix===0?f.per:'')+'</td></tr>';
+      });
+    });
+  }).join('');
+}
+
+// === EMAILS ===
+function rEmails(){
+  var groups={};
+  CARTAS.forEach(function(c){
+    var e=lookupEmail(c.forn);
+    if(!groups[e]) groups[e]={cartas:[],pedidos:{}};
+    groups[e].cartas.push(c);
+    if(c.pedido) groups[e].pedidos[c.pedido]=true;
+  });
+  // Add romaneios sem carta
+  ROM.forEach(function(r){
+    var found=CARTAS.some(function(c){return c.pedido===r.p;});
+    if(!found){
+      // find email by city
+      var eRow=null;
+      for(var i=0;i<B.length;i++){if(B[i][1].toUpperCase().indexOf(r.cid.split(' ')[0])>=0&&B[i][3].indexOf('KIT')>=0){eRow=B[i];break;}}
+      var e=eRow?eRow[3]:'SEM MAPEAMENTO — '+r.cid;
+      if(!groups[e]) groups[e]={cartas:[],pedidos:{}};
+      groups[e].pedidos[r.p]=true;
+    }
+  });
+
+  var html='';
+  var gi=0;
+  for(var assunto in groups){
+    var grp=groups[assunto];
+    var pedidos=Object.keys(grp.pedidos);
+    var docs=[];
+    grp.cartas.forEach(function(c){docs.push(c.pdf);});
+    pedidos.forEach(function(pid){(KIT[pid]||[]).forEach(function(d){if(docs.indexOf(d)<0)docs.push(d);});});
+    var hasWarn=grp.cartas.some(function(c){return !c.pedido;});
+    var st=hasWarn?'wn':'ok';
+    var cartaLines=grp.cartas.map(function(c){return '• Carta '+c.nr+' — '+c.forn+' — '+R(c.total);}).join('\n');
+    var pedLine=pedidos.length?'\nPedido(s): '+pedidos.join(', '):'';
+    var body='Boa tarde!\n\nSegue em anexo o kit de manuseio e carta de compra para atender o(s) pedido(s) abaixo:\n\n'+cartaLines+pedLine+'\n\nAtenciosamente,';
+    var cartaRows=grp.cartas.map(function(c){return '<tr><td class="mn fw6" style="color:#2563eb">'+c.nr+'</td><td>'+c.forn+'</td><td>'+c.dt+'</td><td class="mn">'+R(c.total)+'</td><td style="font-size:11px">'+c.itens.map(function(i){return i.d+' — <strong>'+i.q+' un</strong>';}).join('<br>')+'</td><td>'+(c.pago?'<span class="b ok">✓</span>':'<span class="b er">✗</span>')+'</td></tr>';}).join('');
+    var dlBtns=docs.map(function(d){return '<span class="dlb">📄 '+d+'</span>';}).join('');
+    (function(idx,astu,docList,bd,cRows,dBtns,sc){
+      html+='<div class="eg"><div class="egh" onclick="tGrp('+idx+')">'
+        +'<span class="b '+sc+'">'+groups[astu].cartas.length+' carta(s)</span>'
+        +'<span class="astu">'+astu+'</span>'
+        +Object.keys(groups[astu].pedidos).map(function(p){return '<span class="b in" style="font-size:10px">Pedido '+p+'</span>';}).join('')
+        +'<span id="tg-'+idx+'" style="color:#9ca3af;font-size:13px;margin-left:7px">▼</span></div>'
+        +'<div class="hid" id="gb-'+idx+'"><div class="egb">'
+        +'<div class="sl">Cartas de Compra</div>'
+        +'<table class="tbl" style="margin-bottom:12px"><thead><tr><th>Carta</th><th>Fornecedor</th><th>Dt</th><th>Total</th><th>Itens (lidos dos PDFs)</th><th>Comp.</th></tr></thead><tbody>'+cRows+'</tbody></table>'
+        +'<div class="sl">Documentos para Anexar</div>'
+        +'<div class="dlflex">'+dBtns+'</div>'
+        +'<button class="btn bp bsm" style="margin-bottom:12px" onclick="dlModal('+JSON.stringify(docList)+',''+astu.replace(/'/g,"\'")+'')">'
+        +'📎 Ver lista ('+docList.length+' docs)</button>'
+        +'<div class="sl">Corpo do E-mail</div>'
+        +'<div class="epr"><button class="cpb" onclick="cpEmail('+idx+')">Copiar</button>'
+        +'<div class="elb">ASSUNTO: '+astu+'</div>'
+        +'<div id="eb-'+idx+'" style="white-space:pre-line">'+bd+'</div></div>'
+        +'</div></div></div>';
+    })(gi,assunto,docs,body,cartaRows,dlBtns,st);
+    gi++;
+  }
+  document.getElementById('eg-cont').innerHTML=html;
+}
+
+function tGrp(i){var b=document.getElementById('gb-'+i);var t=document.getElementById('tg-'+i);b.classList.toggle('hid');t.textContent=b.classList.contains('hid')?'▼':'▲';}
+function cpEmail(i){var txt=document.getElementById('eb-'+i).innerText;navigator.clipboard.writeText(txt).then(function(){var b=document.querySelectorAll('.cpb')[i];if(b){b.textContent='✓ Copiado!';setTimeout(function(){b.textContent='Copiar';},2000);}});}
+
+// === VALIDAÇÃO ===
+function rVal(){
+  var html=ROM.map(function(r){
+    var k=KIT[r.p]||[];
+    var cartas=r.cartas.map(function(nr){return CARTAS.find(function(c){return c.nr===nr;});}).filter(Boolean);
+    var issues=[];
+    if(k.length<3) issues.push('Kit incompleto — verifique envelope/guia/mapa');
+    if(r.cartas.length===0) issues.push('Nenhuma carta de compra associada');
+    cartas.forEach(function(c){if(!c.pago) issues.push('Carta '+c.nr+': comprovante faltando');});
+    var st=issues.length===0?'ok':issues.length<=1?'wn':'er';
+    var stT={ok:'✓ Pronto para envio',wn:'⚠ Atenção',er:'✗ Pendências'}[st];
+    var allDocs=cartas.map(function(c){return c.pdf;}).concat(k);
+    var funcRows=r.func.flatMap(function(f){return f.itens.map(function(it,ix){return '<tr><td>'+(ix===0?f.n:'')+'</td><td style="font-size:11px;max-width:180px">'+it.d+'</td><td class="mn fw6" style="color:#2563eb">'+it.q+'</td><td class="mn">'+R(it.q*it.v)+'</td></tr>';});}).join('');
+    var kitRows=k.map(function(d){return '<div style="font-size:12px;padding:2px 0"><span style="color:#16a34a">✓</span> '+d+'</div>';}).join('');
+    var cartaRows=cartas.length?cartas.map(function(c){return '<div style="font-size:12px;padding:2px 0"><span style="color:#16a34a">✓</span> <strong>'+c.nr+'</strong> — '+c.forn+' — '+R(c.total)+(c.pago?' <span class="b ok" style="font-size:10px">Comp. ✓</span>':' <span class="b er" style="font-size:10px">Sem comp.</span>')+'</div>';}).join(''):'<div style="color:#d97706;font-size:12px">⚠ Nenhuma carta associada</div>';
+    var issHtml=issues.length?'<div class="al wn mt8">⚠ <div>'+issues.map(function(i){return '<div>'+i+'</div>';}).join('')+'</div></div>':'';
+    return '<div class="vc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><strong>Pedido '+r.p+'</strong><span class="mu">— '+r.emp+'</span><span class="mu" style="font-size:11px">— '+r.cid+'/'+r.uf+'</span><span class="b '+st+'" style="margin-left:auto">'+stT+'</span><button class="btn bp bsm" onclick="dlModal('+JSON.stringify(allDocs)+','OS '+r.p+'')">📎 '+allDocs.length+' docs</button></div>'
+      +'<div class="g2"><div><div class="sl">Kit de Manuseio</div>'+kitRows+'<div class="sl mt8">Cartas Associadas</div>'+cartaRows+'</div>'
+      +'<div><div class="sl">Funcionários / Itens (PDFs)</div><table class="ft"><thead><tr><th>Funcionário</th><th>Item</th><th>Qtde</th><th>Total</th></tr></thead><tbody>'+funcRows+'</tbody></table></div></div>'+issHtml+'</div>';
+  }).join('');
+  
+  var sp=CARTAS.filter(function(c){return !c.pedido;});
+  if(sp.length){
+    html+='<div class="vc"><div style="font-weight:600;color:#d97706;margin-bottom:10px">⚠ '+sp.length+' carta(s) sem pedido associado</div><table class="ft"><thead><tr><th>Carta</th><th>Fornecedor</th><th>Total</th><th>Itens (PDFs)</th><th>Comp.</th><th>Docs</th></tr></thead><tbody>'
+      +sp.map(function(c){return '<tr><td class="mn fw6" style="color:#2563eb">'+c.nr+'</td><td>'+c.forn+'</td><td class="mn">'+R(c.total)+'</td><td style="font-size:11px">'+c.itens.map(function(i){return i.d+' — '+i.q+' un.';}).join('<br>')+'</td><td>'+(c.pago?'<span class="b ok">✓</span>':'<span class="b er">✗</span>')+'</td><td><button class="btn bo bsm" onclick="dlModal('+JSON.stringify([c.pdf])+','Carta '+c.nr+'')">📎</button></td></tr>';}).join('')
+      +'</tbody></table></div>';
+  }
+  document.getElementById('val-b').innerHTML=html;
+}
+
+// === BASE ===
+function rBase(){
+  var t=(document.getElementById('s-base').value||'').toLowerCase();
+  var data=t?B.filter(function(r){return r[0].toLowerCase().indexOf(t)>=0||r[1].toLowerCase().indexOf(t)>=0||r[2].toLowerCase().indexOf(t)>=0||r[3].toLowerCase().indexOf(t)>=0;}):B;
+  document.getElementById('tb-base').innerHTML=data.slice(0,200).map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td style="font-size:12px">'+r[3]+'</td><td class="mu">'+r[4]+'</td></tr>';}).join('');
+}
+
+// === RELATÓRIO ===
+function rRel(){
+  var now=new Date().toLocaleString('pt-BR');
+  var tv=CARTAS.reduce(function(a,c){return a+c.total;},0);
+  var tFunc=ROM.reduce(function(a,r){return a+r.func.length;},0);
+  var t='RELATÓRIO DE VALIDAÇÃO — BENEFÍCIO CERTO\nGerado em: '+now+'\n'+Array(65).join('=')+('\n\n');
+  t+='RESUMO\n  Cartas de Compra: '+CARTAS.length+'\n  Valor total: '+R(tv)+'\n  Associadas: '+CARTAS.filter(function(c){return c.pedido;}).length+'\n  Sem pedido: '+CARTAS.filter(function(c){return !c.pedido;}).length+'\n  Romaneios: '+ROM.length+'\n  Funcionários: '+tFunc+'\n\n';
+  CARTAS.forEach(function(c){t+='['+c.nr+'] '+c.forn+'\n  '+c.dt+' | '+R(c.total)+' | '+c.comp+'\n  Pedido: '+(c.pedido||'NÃO ASSOCIADO ⚠')+'\n  Email: '+lookupEmail(c.forn)+'\n'+c.itens.map(function(i){return '  • '+i.d+' — '+i.q+' un.';}).join('\n')+'\n\n';});
+  ROM.forEach(function(r){t+='[Pedido '+r.p+'] '+r.emp+'\n  '+r.cid+'/'+r.uf+' | '+r.env+' env | '+R(r.tot)+'\n  Kit: '+(KIT[r.p]||[]).join(', ')+'\n  Cartas: '+(r.cartas.join(', ')||'NENHUMA ⚠')+'\n\n';});
+  document.getElementById('rel-t').textContent=t;
+}
+
+// === EXPORTS ===
+function expCSV(){
+  var h='Nr.Carta;Dt;Fornecedor;Cidade;UF;Total;Comprador;Pedido;Empresa;Comprovante;AssuntoEmail;Status';
+  var rows=CARTAS.map(function(c){return [c.nr,c.dt,'"'+c.forn+'"',c.cidade,c.uf,c.total.toFixed(2).replace('.',','),'"'+c.comp+'"',c.pedido||'',c.empresa||'',c.pago?'SIM':'NÃO','"'+lookupEmail(c.forn)+'"',c.pedido?'ASSOCIADA':'SEM PEDIDO'].join(';');});
+  dl('\uFEFF'+[h].concat(rows).join('\n'),'solicitacoes_'+new Date().toISOString().slice(0,10)+'.csv','text/csv;charset=utf-8');
+}
+function expRel(){rRel();dl(document.getElementById('rel-t').textContent,'relatorio_'+new Date().toISOString().slice(0,10)+'.txt','text/plain;charset=utf-8');}
+function dl(c,n,t){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=n;a.click();}
+
+// === NAVIGATION ===
+var VIEWS=['dash','sol','rom','emails','val','base','rel'];
+var REND={dash:rDash,sol:rSol,rom:rRom,emails:rEmails,val:rVal,base:rBase,rel:rRel};
+function go(v){
+  VIEWS.forEach(function(x){
+    document.getElementById('p-'+x).classList.toggle('on',x===v);
+    document.getElementById('p-'+x).classList.toggle('hid',x!==v);
+  });
+  document.querySelectorAll('.ni').forEach(function(el){el.classList.remove('on');});
+  var idx=['dash','sol','rom','emails','val','base','rel'].indexOf(v);
+  document.querySelectorAll('.ni')[idx] && document.querySelectorAll('.ni')[idx].classList.add('on');
+  if(REND[v]) REND[v]();
+}
+
+setInterval(function(){document.getElementById('clk').textContent=new Date().toLocaleString('pt-BR');},1000);
+go('dash');
+</script>
+</body>
+</html>
