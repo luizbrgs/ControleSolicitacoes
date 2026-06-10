@@ -244,21 +244,6 @@ body{font-family:system-ui,sans-serif;background:#f8f9fb;color:#111;font-size:13
         <div class="pb"><pre id="rel-t" style="font-family:monospace;font-size:11px;line-height:1.9;white-space:pre-wrap;color:#374151"></pre></div>
       </div>
     </div>
-  </div>
-</div>
-
-<div id="modal" class="hid">
-  <div class="mbox">
-    <div style="font-weight:600;font-size:14px;margin-bottom:3px" id="modal-title"></div>
-    <div style="font-size:11px;color:#6b7280;margin-bottom:14px">Anexe esses arquivos no e-mail</div>
-    <div style="background:#f8f9fb;border:1px solid #e2e6ed;padding:10px;margin-bottom:14px" id="modal-list"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
-      <button class="btn bto bsm" id="btnMCopy">⎘ Copiar lista</button>
-      <button class="btn btg bsm" id="btnMDlAll">⬇ Baixar todos carregados</button>
-      <button class="btn btp bsm" id="btnMClose">Fechar</button>
-    </div>
-  </div>
-</div>
 
     <!-- CONFIGURAÇÕES -->
     <div class="pane" id="p-cfg">
@@ -651,7 +636,7 @@ function loadState() {
 }
 
 // === NAVEGAÇÃO ===
-var VIEWS = ['dash','sol','rom','emails','emit','emitbase','val','base','rel'];
+var VIEWS = ['dash','sol','rom','emails','emit','emitbase','val','base','rel','cfg'];
 
 function go(v) {
   VIEWS.forEach(function(x) {
@@ -660,7 +645,7 @@ function go(v) {
     if (x === v) { p.className = 'pane on'; if(n) n.className = 'ni on'; }
     else { p.className = 'pane hid'; if(n) n.className = 'ni'; }
   });
-  var fn = {dash:rDash, sol:rSol, rom:rRom, emails:rEmailsTransp, emit:rEmailsEmit, emitbase:function(){ rEmit(); }, val:rVal, base:function(){ updateBaseCount(); rBase(); }, rel:rRel, cfg:function(){ loadConfig(); updateCfgLoginStatus(); }};
+  var fn = {dash:rDash, sol:rSol, rom:rRom, emails:rEmailsTransp, emit:rEmailsEmit, emitbase:function(){ rEmit(); }, val:rVal, base:function(){ updateBaseCount(); rBase(); }, rel:rRel, cfg:function(){ setTimeout(function(){ loadConfig(); updateCfgLoginStatus(); }, 50); }};
   if (fn[v]) fn[v]();
 }
 
@@ -2485,22 +2470,23 @@ function autoAssociate(carta) {
     if (r.fornecedores && r.fornecedores.length) {
       for (var fi2=0; fi2<r.fornecedores.length; fi2++) {
         if (normStr(r.fornecedores[fi2]) === cartaFornN) {
-          _doAssoc(carta, r, encs[0]||''); return;
+          // Use romNr as pedido reference (not encs[0] which may be wrong)
+          _doAssoc(carta, r, r.romNr || encs[0] || ''); return;
         }
       }
     }
 
     // ── ESTRATÉGIA 4: fornecedor da carta bate com empresa do romaneio (Excel importado)
     if (r.emp && normStr(r.emp) === cartaFornN) {
-      _doAssoc(carta, r, encs[0]||''); return;
+      _doAssoc(carta, r, r.romNr || encs[0] || ''); return;
     }
 
     // ── ESTRATÉGIA 5: fornecedor da carta bate com func.itens[].d (descrição)
     for (var fi3=0; fi3<(r.func||[]).length; fi3++) {
       for (var ii2=0; ii2<(r.func[fi3].itens||[]).length; ii2++) {
         var desc = normStr(r.func[fi3].itens[ii2].d||'');
-        if (desc.length > 4 && desc.indexOf(cartaFornN) >= 0) {
-          _doAssoc(carta, r, encs[0]||''); return;
+        if (desc.length > 4 && (desc.indexOf(cartaFornN) >= 0 || cartaFornN.indexOf(desc) >= 0)) {
+          _doAssoc(carta, r, r.romNr || encs[0] || ''); return;
         }
       }
     }
@@ -3821,6 +3807,22 @@ document.addEventListener('change', function(e) {
 // init
 loadState();
 go('dash');
+setTimeout(loadConfig, 200);
 </script>
 </body>
-</html>
+</html
+  </div>
+</div>
+
+<div id="modal" class="hid">
+  <div class="mbox">
+    <div style="font-weight:600;font-size:14px;margin-bottom:3px" id="modal-title"></div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:14px">Anexe esses arquivos no e-mail</div>
+    <div style="background:#f8f9fb;border:1px solid #e2e6ed;padding:10px;margin-bottom:14px" id="modal-list"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn bto bsm" id="btnMCopy">⎘ Copiar lista</button>
+      <button class="btn btg bsm" id="btnMDlAll">⬇ Baixar todos carregados</button>
+      <button class="btn btp bsm" id="btnMClose">Fechar</button>
+    </div>
+  </div>
+</div>>
